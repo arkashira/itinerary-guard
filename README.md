@@ -1,2 +1,9 @@
-# itinerary-guard
-axentx product · A real‑time travel‑info verification service that cross‑checks itineraries against multiple authoritative sources and flags inconsistencies before booking.
+# Itinerary Guard
+
+A Python project for ingesting and verifying itinerary data from various travel sources.
+
+## Usage
+
+1. Install the project using `poetry install`
+2. Run the tests using `pytest`
+3. Use the `ItineraryGuard` class to ingest and verify itinerary data
