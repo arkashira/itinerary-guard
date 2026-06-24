@@ -1,29 +1,48 @@
-from itinerary_guard import ItineraryGuard, Itinerary
+from itinerary_guard import ItineraryGuard, Advisory
 
-def test_ingest_data():
-    guard = ItineraryGuard()
-    data = [
-        {'id': 1, 'airline': 'Airline1', 'hotel': 'Hotel1', 'transportation': 'Transportation1'},
-        {'id': 2, 'airline': 'Airline2', 'hotel': 'Hotel2', 'transportation': 'Transportation2'}
-    ]
-    guard.ingest_data(data)
-    assert len(guard.itineraries) == 2
+def test_parse_feed():
+    feed = {"USA": "Level 3 – Do Not Travel", "Canada": "Level 1 – Exercise Normal Precautions"}
+    guard = ItineraryGuard([feed])
+    advisories = guard.aggregated_advisories
+    assert len(advisories) == 2
+    assert advisories[0].destination == "USA"
+    assert advisories[0].severity == "Level 3 – Do Not Travel"
+    assert advisories[1].destination == "Canada"
+    assert advisories[1].severity == "Level 1 – Exercise Normal Precautions"
 
-def test_verify_itinerary():
-    guard = ItineraryGuard()
-    data = [
-        {'id': 1, 'airline': 'Airline1', 'hotel': 'Hotel1', 'transportation': 'Transportation1'}
-    ]
-    guard.ingest_data(data)
-    itinerary = guard.verify_itinerary(1)
-    assert itinerary.id == 1
-    assert itinerary.airline == 'Airline1'
+def test_get_advisory():
+    feed = {"USA": "Level 3 – Do Not Travel", "Canada": "Level 1 – Exercise Normal Precautions"}
+    guard = ItineraryGuard([feed])
+    advisory = guard.get_advisory("USA")
+    assert advisory.destination == "USA"
+    assert advisory.severity == "Level 3 – Do Not Travel"
 
-def test_cross_verify():
-    guard = ItineraryGuard()
-    data = [
-        {'id': 1, 'airline': 'Airline1', 'hotel': 'Hotel1', 'transportation': 'Transportation1'}
-    ]
-    guard.ingest_data(data)
-    assert guard.cross_verify(1) == True
-    assert guard.cross_verify(2) == False
+def test_check_itinerary():
+    feed1 = {"USA": "Level 3 – Do Not Travel", "Canada": "Level 1 – Exercise Normal Precautions"}
+    feed2 = {"Mexico": "Level 2 – Exercise Increased Caution", "UK": "Level 1 – Exercise Normal Precautions"}
+    guard = ItineraryGuard([feed1, feed2])
+    itinerary = ["USA", "Canada", "Mexico"]
+    advisories = guard.check_itinerary(itinerary)
+    assert len(advisories) == 3
+    assert advisories[0].destination == "USA"
+    assert advisories[0].severity == "Level 3 – Do Not Travel"
+    assert advisories[1].destination == "Canada"
+    assert advisories[1].severity == "Level 1 – Exercise Normal Precautions"
+    assert advisories[2].destination == "Mexico"
+    assert advisories[2].severity == "Level 2 – Exercise Increased Caution"
+
+def test_update_feeds():
+    feed1 = {"USA": "Level 3 – Do Not Travel", "Canada": "Level 1 – Exercise Normal Precautions"}
+    feed2 = {"Mexico": "Level 2 – Exercise Increased Caution", "UK": "Level 1 – Exercise Normal Precautions"}
+    guard = ItineraryGuard([feed1])
+    guard.update_feeds([feed1, feed2])
+    advisories = guard.aggregated_advisories
+    assert len(advisories) == 4
+    assert advisories[0].destination == "USA"
+    assert advisories[0].severity == "Level 3 – Do Not Travel"
+    assert advisories[1].destination == "Canada"
+    assert advisories[1].severity == "Level 1 – Exercise Normal Precautions"
+    assert advisories[2].destination == "Mexico"
+    assert advisories[2].severity == "Level 2 – Exercise Increased Caution"
+    assert advisories[3].destination == "UK"
+    assert advisories[3].severity == "Level 1 – Exercise Normal Precautions"

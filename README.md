@@ -1,9 +1,12 @@
 # Itinerary Guard
 
-A Python project for ingesting and verifying itinerary data from various travel sources.
+A Python project that integrates with official advisory feeds to warn users of entry restrictions.
 
 ## Usage
 
-1. Install the project using `poetry install`
-2. Run the tests using `pytest`
-3. Use the `ItineraryGuard` class to ingest and verify itinerary data
+1. Create an instance of the `ItineraryGuard` class, passing in a list of feeds.
+2. Use the `check_itinerary` method to get advisories for a given itinerary.
+
+## Tests
+
+Run the tests using `pytest`.
